@@ -1,0 +1,30 @@
+start: _NEWLINE* count_drones (_NEWLINE+ statement)+ _NEWLINE*
+
+count_drones: "nb_drones:" SIGNED_INT
+
+statement: nodes | connections
+
+nodes: "start_hub:" HUB_NAME SIGNED_INT SIGNED_INT metadata? -> start_hub
+     | "end_hub:" HUB_NAME SIGNED_INT SIGNED_INT metadata? -> end_hub
+     | "hub:" HUB_NAME SIGNED_INT SIGNED_INT metadata? -> hub
+metadata: "[" data+ "]"
+
+data: color | zone | max_drones
+color: "color=" COLOR_VALUE
+zone: "zone=" CNAME
+max_drones: "max_drones=" SIGNED_INT
+
+connections: "connection:" NAME "-" NAME c_metadata?
+c_metadata: "[" c_data "]"
+c_data: "max_link_capacity=" SIGNED_INT
+
+NAME: /[^\s-]+/
+HUB_NAME: /[^\s\[\]#\-]+/
+COLOR_VALUE: /[^\s=\[\]#]+/
+
+%import common.CNAME
+%import common.SIGNED_INT
+%import common.NEWLINE -> _NEWLINE
+%import common.WS_INLINE
+%ignore WS_INLINE
+%ignore /#[^\r\n]*/

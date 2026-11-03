@@ -1,0 +1,135 @@
+"""Transform the Lark parse tree into validated Pydantic models."""
+
+from typing import Any
+
+from lark import Token, Transformer, v_args
+from lark.tree import Meta
+from pydantic import ValidationError
+
+from errors import ParseError
+from models import Hub, HubRole, Link, ParsedMap
+
+
+Pair = tuple[str, Token]
+
+
+
+def _describe(exc: ValidationError) -> str:
+    """Build a short readeble message from a Pydantic error."""
+    parts = []
+    for err in exc.errors():
+        field = ".".join(str(p) for p in err["loc"]) or "value"
+        parts.append(f"{field}: {err['msg']}")
+    return "; ".join(parts)
+
+
+class MapTransformer(Transformer[Token, Any]):
+    """Convert each tree node nto plain values or models."""
+
+    @v_args(inline=True)
+    def count_drones(self, number: Token) -> Token:
+        """Keep the token"""
+        return number
+
+    @v_args(inline=True)
+    def statement(self, item: Any) -> Any:
+        """Pass the hub or link through unchanged."""
+        return item
+
+    @v_args(inline=True)
+    def data(self, item: Pair) -> Pair:
+        """Pass a pair through unchanged."""
+        return item
+
+    @v_args(inline=True)
+    def color(self, value: Token) -> Pair:
+        """Build a pair."""
+        return ("color", value)
+
+    @v_args(inline=True)
+    def zone(self, value: Token) -> Pair:
+        """Build a pair."""
+        return ("zone", value)
+
+    @v_args(inline=True)
+    def max_drones(self, value: Token) -> Pair:
+        """Build a pair."""
+        return ("max_drones", value)
+
+    @v_args(inline=True)
+    def c_data(self, value: Token) -> Pair:
+        """Build a pair."""
+        return ("max_link_capacity", value)
+
+    @v_args(inline=True)
+    def c_metadata(self, item: Pair) -> dict[str, str]:
+        """Turn the single connection tag into a dict."""
+        return {item[0]: str(item[1])}
+
+    def metadata(self, items: list[Pair]) -> dict[str, str]:
+        """Merge hub tags into a dict, rejecting repeated tags."""
+        result: dict[str, str] = {}
+        for key, value in items:
+            if key in result:
+                raise ParseError(
+                    f"Line {value.line}: duplicated tag '{key}'"
+                )
+            result[key] = str(value)
+        return result
+
+    def _hub(
+        self, role: HubRole, meta: Meta, children: list[Any]
+        ) -> Hub:
+        """Build a Hub from the children of any hub node."""
+        name, x, y, *rest = children
+        extra: dict[str, str] = rest[0] if rest else {}
+        try:
+            return Hub(
+                name=str(name), x=str(x), y=str(y),
+                role=role, line=meta.line, **extra,
+            )
+        except ValidationError as exc:
+            raise ParseError(
+                f"Line {meta.line}: {_describe(exc)}"
+            ) from exc
+
+    @v_args(meta=True)
+    def start_hub(self, meta: Meta, children: list[Any]) -> Hub:
+        """Build the start hub."""
+        return self._hub(HubRole.START, meta, children)
+
+    @v_args(meta=True)
+    def end_hub(self, meta: Meta, children: list[Any]) -> Hub:
+        """Build the end hub."""
+        return self._hub(HubRole.END, meta, children)
+
+    @v_args(meta=True)
+    def hub(self, meta: Meta, children: list[Any]) -> Hub:
+        """Build a regular hub."""
+        return self._hub(HubRole.REGULAR, meta, children)
+
+    @v_args(meta=True)
+    def connections(self, meta: Meta, children: list[Any]) -> Link:
+        """Build a Link from a connection line."""
+        a, b, *rest = children
+        extra: dict[str, str] = rest[0] if rest else {}
+        try:
+            return Link(a=str(a), b=str(b), line=meta.line, **extra)
+        except ValidationError as exc:
+            raise ParseError(
+                f"Line {meta.line}: {_describe(exc)}"
+            ) from exc
+
+    def start(self, children: list[Any]) -> ParsedMap:
+        """Build the final ParsedMap from the whole file."""
+        count, *statements = children
+        try:
+            return ParsedMap(
+                nb_drones=str(count),
+                hubs=[s for s in statements if isinstance(s, Hub)],
+                links=[s for s in statements if isinstance(s, Link)],
+            )
+        except ValidationError as exc:
+            raise ParseError(
+                f"Line {count.line}: {_describe(exc)}"
+            ) from exc
