@@ -14,13 +14,14 @@ hub: dead_end3 2 -1 [color=red]
 hub: trap_loop1 4 0 [zone=restricted color=orange]
 hub: trap_loop2 4 2 [zone=restricted color=orange]
 hub: bottleneck 5 1 [color=yellow max_drones=2]
-hub: final_stretch1 6 0 [zone=priority color=cyan]
+hub: final_stretch1 6 0 [color=cyan]
 hub: final_stretch2 6 1 [zone=priority color=cyan]
 hub: final_stretch3 6 2 [zone=priority color=cyan]
 end_hub: goal 7 1 [color=green]
 
 # Main path connections
 connection: start-maze_a1 [max_link_capacity=2]
+connection: maze_a1-maze_a2
 connection: maze_a1-maze_a2
 connection: maze_a1-maze_b1
 connection: maze_b1-maze_b2

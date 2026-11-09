@@ -68,7 +68,7 @@ class ParsedMap(BaseModel):
     @model_validator(mode="after")
     def check_network(self) -> "ParsedMap":
         """Validate rules that involve the whole network."""
-        starts =[h for h in self.hubs if h.role is HubRole.START]
+        starts = [h for h in self.hubs if h.role is HubRole.START]
         ends = [h for h in self.hubs if h.role is HubRole.END]
         if len(starts) != 1:
             raise ValueError(

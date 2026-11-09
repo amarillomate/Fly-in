@@ -13,7 +13,6 @@ from models import Hub, HubRole, Link, ParsedMap
 Pair = tuple[str, Token]
 
 
-
 def _describe(exc: ValidationError) -> str:
     """Build a short readeble message from a Pydantic error."""
     parts = []
@@ -79,13 +78,13 @@ class MapTransformer(Transformer[Token, Any]):
 
     def _hub(
         self, role: HubRole, meta: Meta, children: list[Any]
-        ) -> Hub:
+    ) -> Hub:
         """Build a Hub from the children of any hub node."""
         name, x, y, *rest = children
-        extra: dict[str, str] = rest[0] if rest else {}
+        extra: dict[str, Any] = rest[0] if rest else {}
         try:
             return Hub(
-                name=str(name), x=str(x), y=str(y),
+                name=str(name), x=int(x), y=int(y),
                 role=role, line=meta.line, **extra,
             )
         except ValidationError as exc:
@@ -112,7 +111,7 @@ class MapTransformer(Transformer[Token, Any]):
     def connections(self, meta: Meta, children: list[Any]) -> Link:
         """Build a Link from a connection line."""
         a, b, *rest = children
-        extra: dict[str, str] = rest[0] if rest else {}
+        extra: dict[str, Any] = rest[0] if rest else {}
         try:
             return Link(a=str(a), b=str(b), line=meta.line, **extra)
         except ValidationError as exc:
@@ -125,7 +124,7 @@ class MapTransformer(Transformer[Token, Any]):
         count, *statements = children
         try:
             return ParsedMap(
-                nb_drones=str(count),
+                nb_drones=int(count),
                 hubs=[s for s in statements if isinstance(s, Hub)],
                 links=[s for s in statements if isinstance(s, Link)],
             )

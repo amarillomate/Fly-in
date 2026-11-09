@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from lark import Lark, Tree
+from lark import Lark
 from lark.exceptions import UnexpectedInput, VisitError
 
 from errors import ParseError

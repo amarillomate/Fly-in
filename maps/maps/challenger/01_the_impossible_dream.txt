@@ -9,7 +9,7 @@ nb_drones: 25
 start_hub: start 0 0 [color=green]
 
 # Single-file entry gates (extreme bottleneck)
-hub: gate_hell1 2 0 [color=red max_drnes=1]
+hub: gate_hell1 2 0 [color=red max_drones=1]
 hub: gate_hell2 3 0 [color=red max_drones=1]
 hub: gate_hell3 4 0 [color=red max_drones=1]
 hub: gate_hell4 5 0 [color=red max_drones=1]

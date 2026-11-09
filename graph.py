@@ -15,7 +15,7 @@ class Graph:
             hub.name: hub for hub in parsed_map.hubs
         }
         self._adjacency: dict[str, list[str]] = defaultdict(list)
-        self._links: dict[frozenset[str, Link]] = {}
+        self._links: dict[frozenset[str], Link] = {}
         self._start = self._find_role_hub(HubRole.START)
         self._end = self._find_role_hub(HubRole.END)
 
@@ -41,7 +41,7 @@ class Graph:
         """Return reachable neighbor hub names, excluding blocked hubs."""
         return list(self._adjacency[hub_name])
 
-    def movement_cost(self, destination: str) -> str:
+    def movement_cost(self, destination: str) -> int:
         """Return the number od turns required to enter a destination hub."""
         hub = self._hubs[destination]
         if hub.zone is ZoneType.RESTRICTED:
@@ -82,7 +82,7 @@ class Graph:
             first = self._hubs[link.a]
             second = self._hubs[link.b]
 
-            if first.zone is not ZoneType.BLOCKED:
-                self._adjacency[link.a].append(link.b)
             if second.zone is not ZoneType.BLOCKED:
+                self._adjacency[link.a].append(link.b)
+            if first.zone is not ZoneType.BLOCKED:
                 self._adjacency[link.b].append(link.a)
