@@ -22,7 +22,6 @@ end_hub: goal 7 1 [color=green]
 # Main path connections
 connection: start-maze_a1 [max_link_capacity=2]
 connection: maze_a1-maze_a2
-connection: maze_a1-maze_a2
 connection: maze_a1-maze_b1
 connection: maze_b1-maze_b2
 connection: maze_b2-maze_c2

@@ -28,6 +28,11 @@ class Simulation:
 
         return turns
 
+    @property
+    def plans(self) -> list[DronePlan]:
+        """Return the drone plans used by this simulation."""
+        return self._plans
+
     def _add_plan(self, plan: DronePlan, turns: list[Turn]) -> None:
         """Add every movement of one drone to the matching turns."""
         path, turns_taken = plan.path, plan.turns

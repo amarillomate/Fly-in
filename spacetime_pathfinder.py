@@ -142,7 +142,7 @@ class SpaceTimePathfinder:
         current_score: Score,
     ) -> Score:
         """Return (turns, -priority hubs, moves) after reaching next_state."""
-        turns, negative_priority, moves = current_score
+        turns, moves, negative_priority = current_score
         current_hub, current_turn = current_state
         next_hub, next_turn = next_state
 
@@ -151,7 +151,7 @@ class SpaceTimePathfinder:
             if self._graph.hub(next_hub).zone is ZoneType.PRIORITY:
                 negative_priority -= 1
 
-        return (turns + next_turn - current_turn, negative_priority, moves)
+        return (turns + next_turn - current_turn, moves, negative_priority)
 
     def _reconstruct_path(
         self,

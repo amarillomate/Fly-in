@@ -119,16 +119,77 @@ class MapTransformer(Transformer[Token, Any]):
                 f"Line {meta.line}: {_describe(exc)}"
             ) from exc
 
+    def _validate_network(
+        self,
+        count: Token,
+        hubs: list[Hub],
+        links: list[Link],
+    ) -> None:
+        """"Validate rules that involve several hubs or links."""
+        starts = [hub for hub in hubs if hub.role is HubRole.START]
+        ends = [hub for hub in hubs if hub.role is HubRole.END]
+
+        if len(starts) != 1:
+            raise ParseError(
+                f"Line {count.line}: expected exactly 1 start_hub, "
+                f"found {len(starts)}"
+            )
+
+        if len(ends) != 1:
+            raise ParseError(
+                f"Line {count.line}: expected exactly 1 end_hub, "
+                f"found {len(ends)}"
+            )
+
+        names = [hub.name for hub in hubs]
+        duplicated = {
+            name for name in names
+            if names.count(name) > 1
+        }
+
+        for hub in hubs:
+            if hub.name in duplicated:
+                raise ParseError(
+                    f"Line {hub.line}: duplicated hub_name '{hub.name}'"
+                )
+
+        known = set(names)
+        seen: set[frozenset[str]] = set()
+
+        for link in links:
+            for name in (link.a, link.b):
+                if name not in known:
+                    raise ParseError(
+                        f"Line {link.line}: connection to uknown hub "
+                        f"'{name}'"
+                    )
+
+            if link.a == link.b:
+                raise ParseError(
+                    f"Line {link.line}: connection cannot link "
+                    f"'{link.a}-{link.b}'"
+                )
+
+            key = frozenset((link.a, link.b))
+            if key in seen:
+                raise ParseError(
+                    f"Line {link.line}: duplicated connection "
+                    f"'{link.a}-{link.b}'"
+                )
+
+            seen.add(key)
+
     def start(self, children: list[Any]) -> ParsedMap:
         """Build the final ParsedMap from the whole file."""
         count, *statements = children
-        try:
-            return ParsedMap(
-                nb_drones=int(count),
-                hubs=[s for s in statements if isinstance(s, Hub)],
-                links=[s for s in statements if isinstance(s, Link)],
-            )
-        except ValidationError as exc:
-            raise ParseError(
-                f"Line {count.line}: {_describe(exc)}"
-            ) from exc
+
+        hubs = [s for s in statements if isinstance(s, Hub)]
+        links = [s for s in statements if isinstance(s, Link)]
+
+        self._validate_network(count, hubs, links)
+
+        return ParsedMap(
+            nb_drones=int(count),
+            hubs=hubs,
+            links=links,
+        )
