@@ -42,7 +42,7 @@ class Graph:
         return list(self._adjacency[hub_name])
 
     def movement_cost(self, destination: str) -> int:
-        """Return the number od turns required to enter a destination hub."""
+        """Return the number of turns required to enter a destination hub."""
         hub = self._hubs[destination]
         if hub.zone is ZoneType.RESTRICTED:
             return 2

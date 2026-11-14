@@ -14,7 +14,7 @@ Pair = tuple[str, Token]
 
 
 def _describe(exc: ValidationError) -> str:
-    """Build a short readeble message from a Pydantic error."""
+    """Build a short readable message from a Pydantic error."""
     parts = []
     for err in exc.errors():
         field = ".".join(str(p) for p in err["loc"]) or "value"
@@ -23,7 +23,11 @@ def _describe(exc: ValidationError) -> str:
 
 
 class MapTransformer(Transformer[Token, Any]):
-    """Convert each tree node nto plain values or models."""
+    """Convert each tree node i nto plain values or models."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._seen_hubs: set[str] = set()
 
     @v_args(inline=True)
     def count_drones(self, number: Token) -> Token:
@@ -71,7 +75,9 @@ class MapTransformer(Transformer[Token, Any]):
         for key, value in items:
             if key in result:
                 raise ParseError(
-                    f"Line {value.line}: duplicated tag '{key}'"
+                    f"duplicated tag '{key}'",
+                    line=value.line,
+                    column=value.column,
                 )
             result[key] = str(value)
         return result
@@ -83,14 +89,19 @@ class MapTransformer(Transformer[Token, Any]):
         name, x, y, *rest = children
         extra: dict[str, Any] = rest[0] if rest else {}
         try:
-            return Hub(
+            hub = Hub(
                 name=str(name), x=int(x), y=int(y),
-                role=role, line=meta.line, **extra,
+                role=role, line=meta.line, column=meta.column, **extra,
             )
         except ValidationError as exc:
             raise ParseError(
-                f"Line {meta.line}: {_describe(exc)}"
+                _describe(exc),
+                line=meta.line,
+                column=meta.column,
             ) from exc
+
+        self._seen_hubs.add(hub.name)
+        return hub
 
     @v_args(meta=True)
     def start_hub(self, meta: Meta, children: list[Any]) -> Hub:
@@ -112,11 +123,27 @@ class MapTransformer(Transformer[Token, Any]):
         """Build a Link from a connection line."""
         a, b, *rest = children
         extra: dict[str, Any] = rest[0] if rest else {}
+
+        for name in (str(a), str(b)):
+            if name not in self._seen_hubs:
+                raise ParseError(
+                    f"connection to undefined hub '{name}'",
+                    line=meta.line,
+                    column=meta.column,
+                )
+
         try:
-            return Link(a=str(a), b=str(b), line=meta.line, **extra)
+            return Link(
+                a=str(a), b=str(b),
+                line=meta.line,
+                column=meta.column,
+                **extra,
+            )
         except ValidationError as exc:
             raise ParseError(
-                f"Line {meta.line}: {_describe(exc)}"
+                _describe(exc),
+                line=meta.line,
+                column=meta.column,
             ) from exc
 
     def _validate_network(
@@ -131,14 +158,16 @@ class MapTransformer(Transformer[Token, Any]):
 
         if len(starts) != 1:
             raise ParseError(
-                f"Line {count.line}: expected exactly 1 start_hub, "
-                f"found {len(starts)}"
+                f"excepted exactly 1 start_hub, found {len(starts)}",
+                line=count.line,
+                column=count.column,
             )
 
         if len(ends) != 1:
             raise ParseError(
-                f"Line {count.line}: expected exactly 1 end_hub, "
-                f"found {len(ends)}"
+                f"excepted exactly 1 end_hub, found {len(ends)}",
+                line=count.line,
+                column=count.column,
             )
 
         names = [hub.name for hub in hubs]
@@ -150,31 +179,27 @@ class MapTransformer(Transformer[Token, Any]):
         for hub in hubs:
             if hub.name in duplicated:
                 raise ParseError(
-                    f"Line {hub.line}: duplicated hub_name '{hub.name}'"
+                    f"duplicated hub_name '{hub.name}'",
+                    line=hub.line,
+                    column=hub.column,
                 )
 
-        known = set(names)
         seen: set[frozenset[str]] = set()
 
         for link in links:
-            for name in (link.a, link.b):
-                if name not in known:
-                    raise ParseError(
-                        f"Line {link.line}: connection to uknown hub "
-                        f"'{name}'"
-                    )
-
             if link.a == link.b:
                 raise ParseError(
-                    f"Line {link.line}: connection cannot link "
-                    f"'{link.a}-{link.b}'"
+                    f"connection cannot link '{link.a}-{link.b}'",
+                    line=link.line,
+                    column=link.column,
                 )
 
             key = frozenset((link.a, link.b))
             if key in seen:
                 raise ParseError(
-                    f"Line {link.line}: duplicated connection "
-                    f"'{link.a}-{link.b}'"
+                    f"duplicated connection '{link.a}-{link.b}'",
+                    line=link.line,
+                    column=link.column,
                 )
 
             seen.add(key)
@@ -188,8 +213,15 @@ class MapTransformer(Transformer[Token, Any]):
 
         self._validate_network(count, hubs, links)
 
-        return ParsedMap(
-            nb_drones=int(count),
-            hubs=hubs,
-            links=links,
-        )
+        try:
+            return ParsedMap(
+                nb_drones=int(count),
+                hubs=hubs,
+                links=links,
+            )
+        except ValidationError as exc:
+            raise ParseError(
+                _describe(exc),
+                line=count.line,
+                column=count.column,
+            ) from exc

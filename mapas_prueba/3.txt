@@ -1,0 +1,21 @@
+# Loop with dead ends and shared capacity-1 links (head-on conflicts)
+nb_drones: 5
+start_hub: s 0 0 [color=green]
+end_hub: g 5 0 [color=gold]
+hub: l1 1 1 [color=purple]
+hub: l2 2 1 [color=purple]
+hub: l3 2 -1 [color=purple]
+hub: l4 1 -1 [color=purple]
+hub: m 3 0 [color=blue max_drones=2]
+hub: dead1 3 2 [color=red]
+hub: dead2 4 2 [color=red]
+connection: s-l1
+connection: s-l4
+connection: l1-l2
+connection: l4-l3
+connection: l2-l3
+connection: l2-m
+connection: l3-m
+connection: l2-dead1
+connection: dead1-dead2
+connection: m-g [max_link_capacity=2]

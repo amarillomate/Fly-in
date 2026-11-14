@@ -1,0 +1,10 @@
+# max_drones on start/end must be ignored (not an error)
+nb_drones: 6
+start_hub: s 0 0 [color=green max_drones=1]
+end_hub: g 3 0 [color=gold max_drones=1]
+hub: a 1 0 [max_drones=2]
+hub: b 1 1 [max_drones=2]
+connection: s-a [max_link_capacity=2]
+connection: s-b [max_link_capacity=2]
+connection: a-g [max_link_capacity=2]
+connection: b-g [max_link_capacity=2]

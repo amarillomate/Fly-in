@@ -1,0 +1,18 @@
+# Chain of restricted zones (cap 2) vs longer normal path: ties and in-flight tokens
+nb_drones: 5
+start_hub: s 0 0 [color=green]
+end_hub: g 5 0 [color=gold]
+hub: r1 1 1 [zone=restricted color=red max_drones=2]
+hub: r2 2 1 [zone=restricted color=red max_drones=2]
+hub: n1 1 -1 [color=blue]
+hub: n2 2 -1 [color=blue]
+hub: n3 3 -1 [color=blue]
+hub: n4 4 -1 [color=blue]
+connection: s-r1 [max_link_capacity=2]
+connection: r1-r2 [max_link_capacity=2]
+connection: r2-g [max_link_capacity=2]
+connection: s-n1
+connection: n1-n2
+connection: n2-n3
+connection: n3-n4
+connection: n4-g

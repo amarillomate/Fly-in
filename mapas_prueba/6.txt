@@ -1,0 +1,18 @@
+# Blocked wall forces a detour that also crosses a restricted zone
+nb_drones: 3
+start_hub: s 0 0 [color=green]
+end_hub: g 4 0 [color=gold]
+hub: wall 2 0 [zone=blocked color=gray]
+hub: x 1 0 [color=blue]
+hub: y 3 0 [color=blue]
+hub: up1 1 2 [color=blue]
+hub: up2 2 2 [zone=restricted color=red]
+hub: up3 3 2 [color=blue]
+connection: s-x
+connection: x-wall
+connection: wall-y
+connection: y-g
+connection: x-up1
+connection: up1-up2
+connection: up2-up3
+connection: up3-y

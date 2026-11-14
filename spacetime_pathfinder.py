@@ -141,7 +141,7 @@ class SpaceTimePathfinder:
         next_state: State,
         current_score: Score,
     ) -> Score:
-        """Return (turns, -priority hubs, moves) after reaching next_state."""
+        """Return (turns, hubs, moves, -priority) after reaching next_state."""
         turns, moves, negative_priority = current_score
         current_hub, current_turn = current_state
         next_hub, next_turn = next_state

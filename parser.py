@@ -1,3 +1,5 @@
+"""Parse Fly-in map files into a validated ParsedMap."""
+
 from pathlib import Path
 
 from lark import Lark
@@ -29,8 +31,9 @@ class MapParser:
             return result
         except UnexpectedInput as exc:
             raise ParseError(
-                f"Line {exc.line}, column {exc.column}: "
-                f"invalid syntax\n{exc.get_context(text)}"
+                "invalid syntax",
+                line=exc.line,
+                column=exc.column,
             ) from exc
         except VisitError as exc:
             if isinstance(exc.orig_exc, ParseError):

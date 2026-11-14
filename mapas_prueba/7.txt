@@ -1,0 +1,17 @@
+# Two branches merge on a capacity-1 hub with a slower bypass
+nb_drones: 5
+start_hub: s 0 0 [color=green]
+end_hub: g 5 0 [color=gold]
+hub: a 1 1 [color=blue]
+hub: b 1 -1 [color=blue]
+hub: m 2 0 [color=yellow]
+hub: o1 3 2 [zone=priority color=cyan]
+hub: o2 4 2 [color=cyan]
+connection: s-a
+connection: s-b
+connection: a-m
+connection: b-m
+connection: m-g
+connection: a-o1
+connection: o1-o2
+connection: o2-g

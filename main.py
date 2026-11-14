@@ -1,3 +1,5 @@
+"""Run the Fly-in drone routing simulation from a map file."""
+
 import sys
 from pathlib import Path
 

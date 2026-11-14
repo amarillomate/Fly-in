@@ -1,0 +1,18 @@
+# Many drones, one-drone gate: forces strategic waiting
+nb_drones: 6
+start_hub: s 0 0 [color=green]
+end_hub: g 7 0 [color=gold]
+hub: w1 1 1 [color=blue max_drones=3]
+hub: w2 1 -1 [color=blue max_drones=3]
+hub: gate 3 0 [color=yellow]
+hub: c1 4 0 [color=orange]
+hub: c2 5 0 [zone=restricted color=red]
+hub: c3 6 0 [zone=priority color=cyan]
+connection: s-w1 [max_link_capacity=3]
+connection: s-w2 [max_link_capacity=3]
+connection: w1-gate
+connection: w2-gate
+connection: gate-c1
+connection: c1-c2
+connection: c2-c3
+connection: c3-g [max_link_capacity=2]

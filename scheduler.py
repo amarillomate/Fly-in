@@ -1,3 +1,5 @@
+"""Plan drone routes while respecting shared capacity constraints."""
+
 from dataclasses import dataclass
 
 from errors import SchedulingError
