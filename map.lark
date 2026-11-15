@@ -1,12 +1,12 @@
 start: _NEWLINE* count_drones (_NEWLINE+ statement)+ _NEWLINE*
 
-count_drones: "nb_drones:" SIGNED_INT
+count_drones: _NB_DRONES SIGNED_INT
 
 statement: nodes | connections
 
-nodes: "start_hub:" HUB_NAME SIGNED_INT SIGNED_INT metadata? -> start_hub
-     | "end_hub:" HUB_NAME SIGNED_INT SIGNED_INT metadata? -> end_hub
-     | "hub:" HUB_NAME SIGNED_INT SIGNED_INT metadata? -> hub
+nodes: _START_HUB HUB_NAME SIGNED_INT SIGNED_INT metadata? -> start_hub
+     | _END_HUB HUB_NAME SIGNED_INT SIGNED_INT metadata? -> end_hub
+     | _HUB HUB_NAME SIGNED_INT SIGNED_INT metadata? -> hub
 metadata: "[" data+ "]"
 
 data: color | zone | max_drones
@@ -14,9 +14,15 @@ color: "color=" COLOR_VALUE
 zone: "zone=" CNAME
 max_drones: "max_drones=" SIGNED_INT
 
-connections: "connection:" NAME "-" NAME c_metadata?
+connections: _CONNECTION NAME "-" NAME c_metadata?
 c_metadata: "[" c_data "]"
 c_data: "max_link_capacity=" SIGNED_INT
+
+_NB_DRONES: /nb_drones:(?=[ \t])/
+_START_HUB: /start_hub:(?=[ \t])/
+_END_HUB: /end_hub:(?=[ \t])/
+_HUB: /hub:(?=[ \t])/
+_CONNECTION: /connection:(?=[ \t])/
 
 NAME: /[^\s-]+/
 HUB_NAME: /[^\s\[\]#\-]+/
