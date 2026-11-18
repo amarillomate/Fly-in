@@ -78,7 +78,7 @@ end_hub: goal 10 10 [color=yellow]
 connection: start-room [max_link_capacity=2]
 ```
 
-Comments start with `#`. Zone names cannot contain dashes or spaces. Coordinates must be non-negative integers.
+Comments start with `#`. Zone names cannot contain dashes or spaces. Coordinates must be integers.
 
 | Zone type | Movement cost |
 |---|---|
@@ -161,5 +161,15 @@ D1-goal D2-goal
 ### Error example
 
 ```text
-Error: Line 5, column 1: y: Input should be greater than or equal to 0
+nb_drones: 2
+start_hub: s 0 0
+end_hub: e 5 0
+hub: a 1 1 [zone=foo]
+connection: s-a
+```
+
+Output:
+
+```text
+Error: Line 4, column 1: zone: Input should be 'normal', 'blocked', 'restricted' or 'priority'
 ```

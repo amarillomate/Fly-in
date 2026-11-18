@@ -47,6 +47,7 @@ class Hub(BaseModel):
 
     @model_validator(mode="after")
     def _validate_capacity(self) -> "Hub":
+        """Reject a non-positive max_drones on regular hubs."""
         if self.role is HubRole.REGULAR and self.max_drones < 1:
             raise ValueError(
                 f"max_drones must be a positive integer, got {self.max_drones}"
