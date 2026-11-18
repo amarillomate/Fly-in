@@ -2,7 +2,7 @@
 
 from enum import Enum
 
-from pydantic import BaseModel, ConfigDict, model_validator, PositiveInt
+from pydantic import BaseModel, ConfigDict, model_validator, PositiveInt, Field
 
 
 class ZoneType(str, Enum):
@@ -71,6 +71,6 @@ class ParsedMap(BaseModel):
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
-    nb_drones: PositiveInt
+    nb_drones: int = Field(ge=1, le=1000)
     hubs: list[Hub]
     links: list[Link]

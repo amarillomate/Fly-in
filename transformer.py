@@ -7,7 +7,7 @@ from lark.tree import Meta
 from pydantic import ValidationError
 
 from errors import ParseError
-from models import Hub, HubRole, Link, ParsedMap
+from models import Hub, HubRole, Link, ParsedMap, ZoneType
 
 
 Pair = tuple[str, Token]
@@ -168,6 +168,13 @@ class MapTransformer(Transformer[Token, Any]):
                 f"excepted exactly 1 end_hub, found {len(ends)}",
                 line=count.line,
                 column=count.column,
+            )
+
+        if starts[0].zone is ZoneType.BLOCKED:
+            raise ParseError(
+                f"no route from '{starts[0].name}' to '{ends[0].name}'",
+                line=starts[0].line,
+                column=starts[0].column,
             )
 
         names = [hub.name for hub in hubs]

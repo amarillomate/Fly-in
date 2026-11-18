@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from errors import SchedulingError
+from errors import SchedulingError, ParseError
 from graph import Graph
 from models import ParsedMap
 from pathfinder import Pathfinder
@@ -50,8 +50,11 @@ class Scheduler:
         try:
             shortest = Pathfinder(self._graph).find_shortest_path(start, end)
         except ValueError as exc:
-            raise SchedulingError(
-                f"no route from '{start}' to '{end}'"
+            end_hub = self._graph.hub(end)
+            raise ParseError(
+                f"no route from '{start}' to '{end}'",
+                line=end_hub.line,
+                column=end_hub.column,
             ) from exc
 
         alone_cost = sum(self._graph.movement_cost(h) for h in shortest[1:])

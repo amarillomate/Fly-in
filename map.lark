@@ -14,7 +14,7 @@ color: "color=" COLOR_VALUE
 zone: "zone=" CNAME
 max_drones: "max_drones=" SIGNED_INT
 
-connections: _CONNECTION NAME "-" NAME c_metadata?
+connections: _CONNECTION NAME _DASH NAME c_metadata?
 c_metadata: "[" c_data "]"
 c_data: "max_link_capacity=" SIGNED_INT
 
@@ -24,7 +24,8 @@ _END_HUB: /end_hub:(?=[ \t])/
 _HUB: /hub:(?=[ \t])/
 _CONNECTION: /connection:(?=[ \t])/
 
-NAME: /[^\s-]+/
+_DASH: /(?<=\S)-(?=\S)/
+NAME: /[^\s\[\]#\-]+/
 HUB_NAME: /[^\s\[\]#\-]+/
 COLOR_VALUE: /[^\s=\[\]#]+/
 

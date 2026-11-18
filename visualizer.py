@@ -1,6 +1,7 @@
 """Step-by-step Pygame view of a drone simulation (no animation)."""
 
 import math
+import sys
 
 import pygame
 
@@ -46,26 +47,31 @@ class PygameRenderer:
         pygame.display.set_caption("Fly-in")
         font = pygame.font.Font(None, 22)
         turn, printed, running = 0, 0, True
-        while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
+        try:
+            while running:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
                         running = False
-                    elif event.key in (pygame.K_RIGHT, pygame.K_SPACE):
-                        turn = min(turn + 1, len(self._turns))
-                        if turn > printed:
-                            self._print_turn(turn)
-                            printed = turn
-                    elif event.key == pygame.K_LEFT:
-                        turn = max(turn - 1, 0)
-            screen.fill((20, 25, 30))
-            self._draw_map(screen, font)
-            self._draw_drones(screen, font, turn)
-            self._draw_hud(screen, font, turn)
-            pygame.display.flip()
-        pygame.quit()
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_ESCAPE:
+                            running = False
+                        elif event.key in (pygame.K_RIGHT, pygame.K_SPACE):
+                            turn = min(turn + 1, len(self._turns))
+                            if turn > printed:
+                                self._print_turn(turn)
+                                printed = turn
+                        elif event.key == pygame.K_LEFT:
+                            turn = max(turn - 1, 0)
+                screen.fill((20, 25, 30))
+                self._draw_map(screen, font)
+                self._draw_drones(screen, font, turn)
+                self._draw_hud(screen, font, turn)
+                pygame.display.flip()
+        except KeyboardInterrupt:
+            print("\nInterrupted by user.",
+                  file=sys.stderr)
+        finally:
+            pygame.quit()
 
     def _print_turn(self, turn: int) -> None:
         """Print one turn's movements in the official output format."""
@@ -88,6 +94,15 @@ class PygameRenderer:
 
     def _color(self, name: str | None) -> tuple[int, int, int]:
         """Turn a map color name into RGB (gray if unknown or missing)."""
+        if name == "rainbow":
+            rainbow = pygame.Color(0)
+            rainbow.hsva = (
+                    (pygame.time.get_ticks()) % 360,
+                    100,
+                    100,
+                    100
+            )
+            return rainbow.r, rainbow.g, rainbow.b
         try:
             c = pygame.Color(name or "gray")
             return c.r, c.g, c.b
