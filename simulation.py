@@ -1,3 +1,5 @@
+"""Turn the planned drone routes into per-turn simulation output."""
+
 from dataclasses import dataclass, field
 
 from scheduler import DronePlan

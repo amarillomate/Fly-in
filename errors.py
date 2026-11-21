@@ -10,11 +10,13 @@ class ParseError(Exception):
         line: int | None = None,
         column: int | None = None,
     ) -> None:
+        """Store the error message and where it happened."""
         super().__init__(message)
         self.line = line
         self.column = column
 
     def __str__(self) -> str:
+        """Return the message prefixed with its line and column."""
         parts = []
         if self.line is not None:
             parts.append(f"Line {self.line}")

@@ -26,6 +26,7 @@ class MapTransformer(Transformer[Token, Any]):
     """Convert each tree node i nto plain values or models."""
 
     def __init__(self) -> None:
+        """Start with no hubs seen, to check connections against them."""
         super().__init__()
         self._seen_hubs: set[str] = set()
 

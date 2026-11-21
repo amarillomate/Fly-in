@@ -13,7 +13,7 @@ GRAMMAR_PATH = Path(__file__).with_name("map.lark")
 
 
 class MapParser:
-
+    """Parse Fly-in map text into a validated ParsedMap."""
     def __init__(self) -> None:
         """Compile the grammar once."""
         self._lark = Lark(

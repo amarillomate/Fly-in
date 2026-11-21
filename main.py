@@ -5,7 +5,6 @@
 import sys
 from pathlib import Path
 
-from reservations import ReservationTable
 from errors import ParseError, SchedulingError
 from graph import Graph
 from parser import MapParser
@@ -27,8 +26,8 @@ def main() -> int:
         print(USAGE, file=sys.stderr)
         return 1
 
-    map_path = args[0]
-    show_visual = "--no-visual" not in args
+    map_path = paths[0]
+    show_visual = "--no-visual" not in flags
 
     try:
         text = Path(map_path).read_text()
